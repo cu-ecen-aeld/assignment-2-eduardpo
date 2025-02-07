@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
+#include <string.h>
+#include <errno.h>
 
 int main(int argc, char *argv[]) {
 
@@ -15,14 +17,15 @@ int main(int argc, char *argv[]) {
         char error[128];
         sprintf(error, "Usage: %s <filename> <string>\n", argv[0]);
         syslog(LOG_ERR, "%s", error);
+        closelog();
         return 1; // Exit with error code 1
     }
 
     // Open the file for writing (create if it doesn't exist)
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        perror("Error opening file");
-        syslog(LOG_ERR, "Error opening file");
+        syslog(LOG_ERR,"%s", strerror(errno));
+        closelog();
         return 1; // Exit with error code 1 if file can't be opened
     }
 
@@ -32,6 +35,7 @@ int main(int argc, char *argv[]) {
 
     // Close the file
     fclose(file);
+    closelog();
 
     return 0; // Successful execution
 }
